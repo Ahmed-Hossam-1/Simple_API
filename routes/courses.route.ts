@@ -4,6 +4,7 @@ import {
   updateCourse,
   getAllCourses,
   getCourse,
+  // getCoursesLimit,
 } from "../controllers/courses.controller";
 import express from "express";
 import { validationSchema } from "../middleware/validationSchema";

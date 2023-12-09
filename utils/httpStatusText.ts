@@ -1,6 +1,6 @@
-const SUCCESS: String = "Success";
-const FAIL: String = "fail";
-const ERROR: String = "error";
+const SUCCESS: string = "Success";
+const FAIL: string = "Fail";
+const ERROR: string = "Error";
 
 export const httpStatusText = {
   SUCCESS,
