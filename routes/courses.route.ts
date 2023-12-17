@@ -9,11 +9,11 @@ import {
 import express from "express";
 import { validationSchema } from "../middleware/validationSchema";
 
-export const router = express.Router();
+export const courseRouter = express.Router();
 
-router.route("/").get(getAllCourses).post(validationSchema(), addcourse);
+courseRouter.route("/").get(getAllCourses).post(validationSchema(), addcourse);
 
-router
+courseRouter
   .route("/:courseId")
   .patch(validationSchema(), updateCourse)
   .delete(deleteCourse)
