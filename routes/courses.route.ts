@@ -8,13 +8,17 @@ import {
 } from "../controllers/courses.controller";
 import express from "express";
 import { validationSchema } from "../middleware/validationSchema";
+import verFiyToken from "../middleware/veryFiyToken";
 
 export const courseRouter = express.Router();
 
-courseRouter.route("/").get(getAllCourses).post(validationSchema(), addcourse);
+courseRouter
+  .route("/")
+  .get(verFiyToken, getAllCourses)
+  .post(validationSchema(), verFiyToken, addcourse);
 
 courseRouter
   .route("/:courseId")
-  .patch(validationSchema(), updateCourse)
-  .delete(deleteCourse)
-  .get(getCourse);
+  .patch(validationSchema(), verFiyToken, updateCourse)
+  .delete(verFiyToken, deleteCourse)
+  .get(verFiyToken, getCourse);

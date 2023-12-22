@@ -14,3 +14,5 @@ export type Response = {
     json: { (arg0: { error: ValidationError[] }): void; new (): any };
   };
 };
+
+export type TPayload = { id: number; email: string };

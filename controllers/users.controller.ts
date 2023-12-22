@@ -3,16 +3,18 @@ import { User } from "../models/user.model";
 import appError from "../utils/appError";
 import { httpStatusText } from "../utils/httpStatusText";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import generateJWT from "../utils/generate.JWT";
 
 const getAllUsers = asyncWrapper(async (req: any, res: any) => {
   // Pagination
-  const limit = req.query?.limit ? parseInt(req.query.limit as string) : 2;
-  const page = req.query?.page ? parseInt(req.query.page as string) : 1;
-  const skip = (page - 1) * limit;
+  // const limit = req.query?.limit ? parseInt(req.query.limit as string) : 2;
+  // const page = req.query?.page ? parseInt(req.query.page as string) : 1;
+  // const skip = (page - 1) * limit;
   // Get all users from database
-  const users = await User.find({}, { __v: 0, password: 0 })
-    .limit(limit)
-    .skip(skip);
+  const users = await User.find({}, { __v: 0, password: 0 });
+  // .limit(limit)
+  // .skip(skip);
   res.json({ status: httpStatusText.SUCCESS, data: { users } });
 });
 
@@ -36,11 +38,18 @@ const registerUser = asyncWrapper(async (req: any, res: any) => {
     email,
     password: hashedPassword,
   });
+
+  // generate JWT token
+  const token: string = await generateJWT({
+    id: +user._id,
+    email: user.email,
+  });
+  user.token = token;
+
   res.status(201).json({
     status: httpStatusText.SUCCESS,
     message: "User created",
     code: 201,
-    data: { user },
   });
 });
 
@@ -59,11 +68,13 @@ const loginUser = asyncWrapper(async (req: any, res: any, next) => {
   const matchedPassword = await bcrypt.compare(password, user.password);
 
   if (user && matchedPassword) {
+    const token = await generateJWT({ email: user.email, id: user._id });
+
     res.status(200).json({
       status: httpStatusText.SUCCESS,
       message: "User logged in",
       code: 200,
-      data: { user },
+      token,
     });
   } else {
     const error = appError.create(

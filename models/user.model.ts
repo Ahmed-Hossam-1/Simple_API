@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  token: {
+    type: String,
+  },
 });
 
 export const User = mongoose.model("User", userSchema);
