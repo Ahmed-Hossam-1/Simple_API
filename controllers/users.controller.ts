@@ -3,20 +3,7 @@ import { User } from "../models/user.model";
 import appError from "../utils/appError";
 import { httpStatusText } from "../utils/httpStatusText";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import generateJWT from "../utils/generate.JWT";
-
-const getAllUsers = asyncWrapper(async (req: any, res: any) => {
-  // Pagination
-  // const limit = req.query?.limit ? parseInt(req.query.limit as string) : 2;
-  // const page = req.query?.page ? parseInt(req.query.page as string) : 1;
-  // const skip = (page - 1) * limit;
-  // Get all users from database
-  const users = await User.find({}, { __v: 0, password: 0 });
-  // .limit(limit)
-  // .skip(skip);
-  res.json({ status: httpStatusText.SUCCESS, data: { users } });
-});
 
 const registerUser = asyncWrapper(async (req: any, res: any) => {
   const { firstName, lastName, email, password } = req.body;
@@ -65,6 +52,12 @@ const loginUser = asyncWrapper(async (req: any, res: any, next) => {
   }
 
   const user = (await User.findOne({ email })) as any;
+
+  if (!user) {
+    const error = appError.create("User not found", 400, httpStatusText.FAIL);
+    return next(error);
+  }
+
   const matchedPassword = await bcrypt.compare(password, user.password);
 
   if (user && matchedPassword) {
@@ -84,6 +77,18 @@ const loginUser = asyncWrapper(async (req: any, res: any, next) => {
     );
     return next(error);
   }
+});
+
+const getAllUsers = asyncWrapper(async (req: any, res: any) => {
+  // Pagination
+  const limit = req.query?.limit ? parseInt(req.query.limit as string) : 2;
+  const page = req.query?.page ? parseInt(req.query.page as string) : 1;
+  const skip = (page - 1) * limit;
+  // Get all users from database
+  const users = await User.find({}, { __v: 0, password: 0 })
+    .limit(limit)
+    .skip(skip);
+  res.json({ status: httpStatusText.SUCCESS, data: { users } });
 });
 
 export const usersController = {
