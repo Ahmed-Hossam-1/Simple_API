@@ -15,4 +15,4 @@ export type Response = {
   };
 };
 
-export type TPayload = { id: number; email: string };
+export type TPayload = { id: number; email: string; role: string };

@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import generateJWT from "../utils/generate.JWT";
 
 const registerUser = asyncWrapper(async (req: any, res: any) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password, role } = req.body;
   const oldUser = await User.findOne({ email });
   if (oldUser) {
     return res.status(409).json({
@@ -24,19 +24,22 @@ const registerUser = asyncWrapper(async (req: any, res: any) => {
     lastName,
     email,
     password: hashedPassword,
+    role,
+    avatar: req.file.filename,
   });
 
   // generate JWT token
   const token: string = await generateJWT({
     id: +user._id,
     email: user.email,
+    role: user.role,
   });
   user.token = token;
 
   res.status(201).json({
     status: httpStatusText.SUCCESS,
-    message: "User created",
     code: 201,
+    data: { user },
   });
 });
 
@@ -61,13 +64,16 @@ const loginUser = asyncWrapper(async (req: any, res: any, next) => {
   const matchedPassword = await bcrypt.compare(password, user.password);
 
   if (user && matchedPassword) {
-    const token = await generateJWT({ email: user.email, id: user._id });
+    const token = await generateJWT({
+      email: user.email,
+      id: user._id,
+      role: user.role,
+    });
 
     res.status(200).json({
       status: httpStatusText.SUCCESS,
-      message: "User logged in",
       code: 200,
-      token,
+      data: { token },
     });
   } else {
     const error = appError.create(

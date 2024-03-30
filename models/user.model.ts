@@ -23,6 +23,15 @@ const userSchema = new mongoose.Schema({
   token: {
     type: String,
   },
+  role: {
+    type: String,
+    enum: ["admin", "user", "manager"],
+    default: "user",
+  },
+  avatar: {
+    type: String,
+    default: "default.png",
+  },
 });
 
 export const User = mongoose.model("User", userSchema);
